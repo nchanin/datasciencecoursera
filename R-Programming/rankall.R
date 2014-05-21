@@ -1,25 +1,35 @@
+## Noah Chanin
+## 2014-MAY-20
+
+## rankall takes in:
+## an outcome: "heart attack", "heart failure", or "pneumonia"
+## a num: "best", "worst", or a number
+## rankall returns:
+## a dataframe with the state and hospital 
+## where hospital is the "num"th best hospital in the state
+
 rankall <- function(outcome, num = "best") {
-  ## Read outcome data
-  ## Check that state and outcome are valid
-  ## For each state, find the hospital of the given rank
-  ## Return a data frame with the hospital names and the
-  ## (abbreviated) state name
-  
-  dat <- read.csv("outcome-of-care-measures.csv", colClasses = "character")
-  
+
+  ## mapcol maps the user provided outcome to the dataset outcome
   mapcol = ""
   if (outcome == "heart attack")  mapcol = "Hospital.30.Day.Death..Mortality..Rates.from.Heart.Attack"
   if (outcome == "heart failure") mapcol = "Hospital.30.Day.Death..Mortality..Rates.from.Heart.Failure"
   if (outcome == "pneumonia")     mapcol = "Hospital.30.Day.Death..Mortality..Rates.from.Pneumonia"
   if (mapcol == "") stop("invalid outcome")
   
+  ## read in the dataset
   dat <- read.csv("outcome-of-care-measures.csv", colClasses = "character")
   
-  # filter by state?uns
+  ## extract out the columns of interest
   df <- dat[,c("Hospital.Name", "State", mapcol)]
-  # remove NA
+  
+  # remove NA data
   df <- df[!is.na(df[[3]]) & df[[3]] != "Not Available", ]
   
+  ## nth takes in:
+  ## x, a dataframe that has all the records for a state
+  ## nth returns:
+  ## the "num"th best row from the state
   nth <- function (x){
     #cat(x[1, c('State')])
     state <- x[1, c('State')]
@@ -34,16 +44,18 @@ rankall <- function(outcome, num = "best") {
     res
   }
   
+  ## for each State in dataframe, extract it, apply "nth" to it, put results in answer
   answer <- do.call(rbind, by(df, df[,"State"], nth))
-  names(answer)[names(answer)=="Hospital.Name"] <- "hospital"
-  names(answer)[names(answer)=="State"] <- "state"
+  
+  ## rename answer columns
+  names(answer)[match(c('Hospital.Name', 'State'),names(answer))] <- c('hospital', 'state')
+
+  ## and return results
   answer
-  
-  #  
-  
 }
 
 
+## test data
 # > source("rankall.R")
 # > head(rankall("heart attack", 20), 10)
 # hospital state
