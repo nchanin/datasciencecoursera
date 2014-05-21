@@ -30,17 +30,18 @@ rankall <- function(outcome, num = "best") {
   ## x, a dataframe that has all the records for a state
   ## nth returns:
   ## the "num"th best row from the state
+  
   nth <- function (x){
-    #cat(x[1, c('State')])
-    state <- x[1, c('State')]
-    # x should be a set of all state values
+    ## order up data by outcome, and then hospital name
     x <- x[order(as.numeric(x[,3]),x[,1]), ]
-    #class(x)
-    #str(x)
+
+    ## select the numth best record for this state
     if (num == "best")       res <- x[1, c('Hospital.Name', 'State')]
     else if (num == "worst") res <- tail(x[, c('Hospital.Name', 'State')], 1)
     else                     res <- x[num, c('Hospital.Name', 'State')]
-    res$State[is.na(res$State)] <- state
+    
+    ## if there are no outcomes at the numth position, replace NA state code with vaid state code
+    res$State[is.na(res$State)] <- x[1, c('State')]
     res
   }
   
