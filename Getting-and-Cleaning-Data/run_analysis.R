@@ -75,13 +75,10 @@ for(i in 1:num_groups){
   mygroup <- df[df$Subject==chksub & df$Activity==chkact,1:num_measures]
   result  <- colMeans(mygroup)
 
-  row          <- answer[0,]
+  answer[i,c('Activity')] <- chkact
+  answer[i,c('Subject')]  <- chksub
+  answer[i,3:ncol(row)]   <- data.frame(rbind(result))
   
-  row[1,c('Activity')] <- chkact
-  row[1,c('Subject')]  <- chksub
-  row[,3:ncol(row)] <- data.frame(rbind(result))
-  
-  answer[i,] <- row
 }
 
 ## save ordered results to file
