@@ -10,6 +10,7 @@
 ## is returned, NA values are ignored
 
 pollutantmean <- function(directory, pollutant, id = 1:332) {
+  ## matching precision from examples
   options(digits=4)
   ## filenames is a list of csv files in the directory
   filenames <- list.files(directory, pattern="*.csv", full.names=TRUE)

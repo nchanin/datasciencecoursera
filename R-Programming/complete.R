@@ -1,40 +1,37 @@
+## Noah Chanin
+## 2014-MAY-20
+
+## complete takes in:
+## a directory that has the pollutant data csv files
+## the id integers to examine
+## complete returns:
+## the mean of selected pollutant values for the id set
+## is returned, NA values are ignored
+
+
 complete <- function(directory, id = 1:332) {
-  capture.output(directory, file ="complete.log")
-  capture.output(id, file ="complete.log", append = TRUE)
 
-  ## 'directory' is a character vector of length 1 indicating
-  ## the location of the CSV files
-  
-  ## 'id' is an integer vector indicating the monitor ID numbers
-  ## to be used
-  
-  ## Return a data frame of the form:
-  ## id nobs
-  ## 1  117
-  ## 2  1041
-  ## ...
-  ## where 'id' is the monitor ID number and 'nobs' is the
-  ## number of complete cases
-  
-
+  ## get the list of csv files
   filenames <- list.files(directory, pattern="*.csv", full.names=TRUE)
+  ## read all csv files into a dataframe
   specdata <- do.call(rbind, lapply(filenames, read.csv))
+  ## filter out the "id" values of interest
   dataset <- specdata[specdata$ID %in% id, ]
-  #dataset <- within(dataset, nobs <- !is.na(sulfate) & !is.na(nitrate))
-  #within(dataset, nobs <- !is.na(sulfate) & !is.na(nitrate))
-  #lapply(split(dataset, dataset$ID), function(X) sum(X$nobs))
+  ## get the number of complete.cases by ID
   result <- with(dataset[complete.cases(dataset), ], aggregate((list(nobs = ID)), list(ID = ID), length))
-  # rearrange by id
-  # adding 0s back in is cheesy
+
+  ## result has filtered out non-complete cases
+  ## merge in the ids to add NA cases back in
   result2 <- merge(as.data.frame(id), result, by.x="id", by.y="ID", sort=FALSE, all.x=TRUE)
+  ## set NA values to 0
   result2[is.na(result2)] <- 0
-  result2 <- merge(as.data.frame(id), result2, by.x="id", by.y="id", sort=FALSE, all.x=TRUE)
-  
-  result2
+  ## return the data in the order of the user provided id data
+  merge(as.data.frame(id), result2, by.x="id", by.y="id", sort=FALSE, all.x=TRUE)
 
 }
 
 
+## test data
 # source("complete.R")
 # complete("specdata", 1)
 # 
